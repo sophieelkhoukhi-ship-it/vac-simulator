@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAC Homepage Config Simulator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f5f5f3;
+      color: #1a1a18;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a18; color: #e2e0d6; }
+    }
+
+    h1 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; color: #73726c; margin-bottom: 20px; }
+
+    .note {
+      font-size: 12px;
+      color: #854F0B;
+      background: #FAEEDA;
+      border-left: 3px solid #BA7517;
+      padding: 6px 10px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 16px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .note { background: #412402; color: #FAC775; border-color: #EF9F27; }
+    }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .ctrl-group { display: flex; flex-direction: column; gap: 4px; }
+    .ctrl-label {
+      font-size: 11px; font-weight: 500; color: #73726c;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .toggle-row {
+      display: flex;
+      border: 1px solid #c8c7bf;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    @media (prefers-color-scheme: dark) { .toggle-row { border-color: #444441; } }
+    .toggle-btn {
+      padding: 7px 16px; font-size: 13px;
+      background: none; border: none; cursor: pointer;
+      color: #73726c; transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+    .toggle-btn.active {
+      background: #1a1a18; color: #f5f5f3; font-weight: 500;
+    }
+    @media (prefers-color-scheme: dark) {
+      .toggle-btn { color: #888780; }
+      .toggle-btn.active { background: #e2e0d6; color: #1a1a18; }
+    }
+
+    .result-label {
+      font-size: 13px; font-weight: 500; color: #5F5E5A; margin-bottom: 12px;
+    }
+    @media (prefers-color-scheme: dark) { .result-label { color: #B4B2A9; } }
+    .fig-badge {
+      display: inline-block; font-size: 11px; font-weight: 500;
+      background: #E6F1FB; color: #185FA5;
+      border-radius: 5px; padding: 2px 8px; margin-left: 8px;
+    }
+    @media (prefers-color-scheme: dark) { .fig-badge { background: #042C53; color: #85B7EB; } }
+
+    .cards { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .card {
+      border-radius: 10px; padding: 14px 16px;
+      width: 190px; border: 1.5px solid;
+      transition: all .25s;
+    }
+    .card.visible {
+      border-color: #3B6D11; background: #EAF3DE;
+    }
+    .card.hidden {
+      border-color: #c8c7bf; background: #F1EFE8; opacity: 0.45;
+    }
+    .card.conditional {
+      border-color: #BA7517; background: #FAEEDA;
+    }
+    @media (prefers-color-scheme: dark) {
+      .card.visible { border-color: #639922; background: #173404; }
+      .card.hidden { border-color: #444441; background: #2C2C2A; }
+      .card.conditional { border-color: #EF9F27; background: #412402; }
+    }
+    .card-icon { font-size: 20px; margin-bottom: 6px; }
+    .card-name { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 4px; }
+    @media (prefers-color-scheme: dark) { .card-name { color: #e2e0d6; } }
+    .card-status { font-size: 11px; }
+    .card.visible .card-status { color: #3B6D11; }
+    .card.hidden .card-status { color: #888780; }
+    .card.conditional .card-status { color: #854F0B; }
+    @media (prefers-color-scheme: dark) {
+      .card.visible .card-status { color: #97C459; }
+      .card.hidden .card-status { color: #5F5E5A; }
+      .card.conditional .card-status { color: #FAC775; }
+    }
+    .card-url { font-size: 10px; color: #888780; margin-top: 6px; word-break: break-all; }
+
+    .rule-box {
+      padding: 14px; border-radius: 8px;
+      background: #F1EFE8; border: 1px solid #D3D1C7;
+    }
+    @media (prefers-color-scheme: dark) { .rule-box { background: #2C2C2A; border-color: #444441; } }
+    .rule-title {
+      font-size: 11px; font-weight: 500; color: #73726c;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+    .rule-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px; font-size: 12px; color: #5F5E5A;
+    }
+    @media (prefers-color-scheme: dark) { .rule-row { color: #B4B2A9; } }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot.green { background: #EAF3DE; border: 1.5px solid #3B6D11; }
+    .dot.gray  { background: #c8c7bf; }
+    .dot.yellow { background: #FAEEDA; border: 1.5px solid #BA7517; }
+  </style>
+</head>
+<body>
+  <h1>VAC Homepage — Config Simulator</h1>
+  <p class="subtitle">Maison Vacheron Constantin · Client Care Platform (CCP)</p>
+
+  <div class="note">⚠️ Configuration "To be confirmed by the Maison" — based on the current spec</div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <div class="ctrl-label">Region</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-rotw" onclick="setRegion('ROTW')">ROTW</button>
+        <button class="toggle-btn" id="btn-cn" onclick="setRegion('CN')">China (CN)</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Login status</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-logged" onclick="setLogin('logged')">Logged in</button>
+        <button class="toggle-btn" id="btn-notlogged" onclick="setLogin('notlogged')">Not logged</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">Services</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-avail" onclick="setAvail('available')">Available</button>
+        <button class="toggle-btn" id="btn-notavail" onclick="setAvail('notavailable')">Not available</button>
+      </div>
+    </div>
+    <div class="ctrl-group">
+      <div class="ctrl-label">NGCS</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btn-ngcs-yes" onclick="setNgcs(true)">Deployed</button>
+        <button class="toggle-btn" id="btn-ngcs-no" onclick="setNgcs(false)">Not deployed</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-label" id="result-label"></div>
+  <div class="cards" id="cards"></div>
+
+  <div class="rule-box">
+    <div class="rule-title">Visibility rules (apply to all regions &amp; login states)</div>
+    <div class="rule-row"><div class="dot green"></div>Register, Manage collection, Go to Maison → <strong>always visible</strong></div>
+    <div class="rule-row"><div class="dot gray"></div>Request a service, Follow your services → visible <strong>only if services are available</strong></div>
+    <div class="rule-row"><div class="dot yellow"></div>Follow your services → also requires <strong>NGCS deployed</strong></div>
+  </div>
+
+  <script>
+    const SERVICES = [
+      { icon: '⌚', name: 'Register a timepiece',   url: 'services.vacheron-constantin.com/en/register', rule: 'always' },
+      { icon: '📋', name: 'Manage your collection',  url: 'My collection / The Hour Club',                rule: 'always' },
+      { icon: '🔧', name: 'Request a service',       url: 'services.../en/ngcs/request-service',          rule: 'available' },
+      { icon: '📍', name: 'Follow your services',    url: 'services.../en/ngcs/my-services',              rule: 'ngcs' },
+      { icon: '🌐', name: "Go to Maison's website",  url: 'vacheron-constantin.com',                      rule: 'always' },
+    ];
+
+    let state = { region: 'ROTW', login: 'logged', avail: 'available', ngcs: true };
+
+    function setRegion(v) { state.region = v; toggle('btn-rotw','btn-cn', v==='ROTW'); render(); }
+    function setLogin(v)  { state.login  = v; toggle('btn-logged','btn-notlogged', v==='logged'); render(); }
+    function setAvail(v)  { state.avail  = v; toggle('btn-avail','btn-notavail', v==='available'); render(); }
+    function setNgcs(v)   { state.ngcs   = v; toggle('btn-ngcs-yes','btn-ngcs-no', v); render(); }
+
+    function toggle(a, b, firstActive) {
+      document.getElementById(a).classList.toggle('active', firstActive);
+      document.getElementById(b).classList.toggle('active', !firstActive);
+    }
+
+    function getStatus(svc) {
+      if (svc.rule === 'always') return { cls: 'visible', label: '✓ Displayed' };
+      if (svc.rule === 'available') {
+        return state.avail === 'available'
+          ? { cls: 'visible',  label: '✓ Displayed' }
+          : { cls: 'hidden',   label: '✗ Hidden — services not available' };
+      }
+      if (svc.rule === 'ngcs') {
+        if (state.avail !== 'available') return { cls: 'hidden',      label: '✗ Hidden — services not available' };
+        if (!state.ngcs)                 return { cls: 'conditional', label: '⚠ Hidden — NGCS not deployed' };
+        return { cls: 'visible', label: '✓ Displayed' };
+      }
+    }
+
+    function render() {
+      const fig = state.avail === 'available' ? '1' : '2';
+      document.getElementById('result-label').innerHTML =
+        `Homepage · ${state.region} · ${state.login === 'logged' ? 'Logged in' : 'Not logged'} · Services ${state.avail === 'available' ? 'available' : 'not available'} <span class="fig-badge">Fig. Mobile ${fig}</span>`;
+
+      document.getElementById('cards').innerHTML = SERVICES.map(s => {
+        const st = getStatus(s);
+        return `<div class="card ${st.cls}">
+          <div class="card-icon">${s.icon}</div>
+          <div class="card-name">${s.name}</div>
+          <div class="card-status">${st.label}</div>
+          <div class="card-url">${s.url}</div>
+        </div>`;
+      }).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>
